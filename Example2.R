@@ -20,7 +20,7 @@ classify_for <- function(beta, xtrain, ytrain, xtest, ytest){
   x1_indices = (ytrain == 1)
   x2_indices = (ytrain == 2)
   xbar1 = colMeans(xtrain[x1_indices, ])
-  xbar2 = colmeans(xtrain[x2_indices, ])
+  xbar2 = colMeans(xtrain[x2_indices, ])
   # Calculate class assignments for xtest in a for loop
   n = length(ytest)
   ypred = rep(1, n)
@@ -47,7 +47,7 @@ classify_vec <- function(beta, xtrain, ytrain, xtest, ytest){
   x1_indices = (ytrain == 1)
   x2_indices = (ytrain == 2)
   xbar1 = colMeans(xtrain[x1_indices, ])
-  xbar2 = colmeans(xtrain[x2_indices, ])
+  xbar2 = colMeans(xtrain[x2_indices, ])
   # Calculate the inner product of the means with beta 
   m1b = as.numeric(crossprod(xbar1, beta))
   m2b = as.numeric(crossprod(xbar2, beta))
@@ -56,8 +56,9 @@ classify_vec <- function(beta, xtrain, ytrain, xtest, ytest){
   # Calculate class assignments for xtest using matrix and vector algebra
   h1 = (xtestb - m1b)^2
   h2 = (xtestb - m2b)^2
+  ypred = (h2 < h1) + 1
   # Calculate % error using ytest
-  
+  error = 100 * mean(ypred != ytest)
   # Return predictions and error
   return(list(ypred = ypred, error = error))
 }
@@ -102,8 +103,16 @@ out1 = classify_for(beta, xtrain, ytrain, xtest, ytest)
 
 out2 = classify_vec(beta, xtrain, ytrain, xtest, ytest)
 
+
+
 # [ToDo] Verify the assignments agree with each other
+testthat::expect_equal(out1, out2)
+summary(out1$ypred = out2$ypred)
 
 # [ToDo] Use microbenchmark package to compare the timing
 
 library(microbenchmark)
+microbenchmark(
+  classify_for(beta, xtrain, ytrain, xtest, ytest),
+  classify_vec(beta, xtrain, ytrain, xtest, ytest)
+)
